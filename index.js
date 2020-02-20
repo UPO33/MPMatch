@@ -5,11 +5,19 @@ const events = require('events');
 
 const gState = {
     queueSchema : {},
-    //key is queue name, value MMQueue
+    /**
+     * @type {Object.<string, MMQueue>}
+     */
     matchQueues : {},
+    /**
+     * all the tickets waiting for result
+     *  @type {Object.<string, MMTicket>}
+     */
     allTickets : {},
     debugLog : false,
-
+    /**
+     * 
+     */
     Tick,
     SetQueueSchema,
     CreateTicket,
@@ -64,9 +72,12 @@ const EMatchTicketStatus = {
     Failed : 2,
 };
 
-/*
-
-*/
+/**
+ * 
+ * @param {string} queueName name of the match queue
+ * @param {object} ticketParams data for the ticket
+ * @param {array} ticketUsers array containing parameter of users
+ */
 function CreateTicket(queueName, ticketParams, ticketUsers){
     const queueSchema = gState.queueSchema[queueName];
     
