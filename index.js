@@ -26,6 +26,8 @@ const gState = {
     OnTicketFailed : function(params) {},
 
     GetQueuesBasicStatus,
+
+    Version : '0.1.1'
 }
 
 function GenUniqueId(){
