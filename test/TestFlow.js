@@ -61,18 +61,24 @@ function Test1(){
     }
 
     if(1){
-        for(let i = 0; i < 59; i++){
+        for(let i = 0; i < 20; i++){
             MPMatch.CreateTicket('apex-play', {}, [{ 'userId' : i, 'skill' : 0, }]);
+        }
+        for(let i = 0; i < 20; i++){
+            MPMatch.CreateTicket('apex-play', {}, [
+                { 'userId' : 100 + i, 'skill' : 0, }, 
+                { 'userId' : 200 + i, 'skill' : 0, },
+            ]);
         }
     }
 
-    MPMatch.OnTicketFailed = function(params){
-        console.dir({'OnTicketFailed' : {params}}, [{depth:22}]);
+    MPMatch.OnTicketFailed = function(ticket, error){
+        console.dir({'OnTicketFailed' : {ticket, error}}, [{depth:22}]);
     }
 
 
-    MPMatch.OnMatchReady = function(params){
-        console.dir({'OnMatchReady' : {params}}, [{depth:22}]);
+    MPMatch.OnMatchReady = function(matchInfo){
+        console.dir({'OnMatchReady' : {matchInfo}}, [{depth:22}]);
     }
 }
 

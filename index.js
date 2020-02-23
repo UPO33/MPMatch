@@ -22,12 +22,12 @@ const gState = {
     SetQueueSchema,
     CreateTicket,
     CancelTicket,
-    OnMatchReady : function(params) {},
-    OnTicketFailed : function(params) {},
+    OnMatchReady : function(matchInfo) {},
+    OnTicketFailed : function(ticket, error) {},
 
     GetQueuesBasicStatus,
 
-    Version : '0.1.1'
+    Version : '0.1.2'
 }
 
 function GenUniqueId(){
@@ -83,13 +83,16 @@ const EMatchTicketStatus = {
 function CreateTicket(queueName, ticketParams, ticketUsers){
     const queueSchema = gState.queueSchema[queueName];
     
+    const newTicket = new MMTicket(queueName);
+    newTicket.users = ticketUsers;
+    newTicket.data = ticketParams;
+
     //
     function FailFunc(error){
-        const ticketId = GenTicketId(queueName);
         setTimeout(function(){
-            gState.OnTicketFailed({ticketId, error });
+            gState.OnTicketFailed(newTicket, error);
         }, 1000);
-        return ticketId;
+        return newTicket;
     }
 
     //for simplicity we enqueue the error instead of throwing immediately
@@ -101,14 +104,12 @@ function CreateTicket(queueName, ticketParams, ticketUsers){
     
 
 
-    const newTicket = new MMTicket(queueSchema);
-    newTicket.users = ticketUsers;
-    newTicket.data = ticketParams;
+
 
     const queue = Match_GetQueue(queueName);
     queue.AddTicket(newTicket);
     
-    return newTicket.ticketId;
+    return newTicket;
 }
 function GetQueuesBasicStatus(){
     const result = {};
@@ -205,19 +206,15 @@ class MMQueue {
         }
         return false;
     }
-    Weight_UserRank(){
-        return 1; //#TODO
-    }
-    Weight_UserRegionId(){
+    Weight_Skill(){
         return 1; //#TODO
     }
 }
 
 class MMTicket{
-    constructor(queueSchema){
+    constructor(queueName){
         this.requestTime = Date.now();
-        this.ticketId = GenTicketId(queueSchema.name);
-        //this.queueSchema = queueSchema;
+        this.ticketId = GenTicketId(queueName);
         this.matchQueue = null;
         this.users = [];
         this.data = {};
@@ -232,7 +229,7 @@ class MMTicket{
 
     FailTheTicket(error){
         this.matchQueue.RemoveTicketById(this.ticketId);
-        gState.OnTicketFailed({ 'ticketId' : this.ticketId,  error, });
+        gState.OnTicketFailed(this, error);
     }
     RemoveFromQueue(){
         this.matchQueue.RemoveTicketById(this.ticketId);
@@ -267,6 +264,7 @@ class MMTeam
         this.tickets = [];
         this.freeCount = teamSize;
         this.teamSize = teamSize;
+        this.lastSkill = 0;
     }
 }
 /*
@@ -319,17 +317,25 @@ class MMCollectionTeamed{
         if(!this.queueSchema.onTicketsEverMatch(firstTicket, joiningTicket))
             return null;
         
+        let fullestTeam = null;
+        let fullestTeamFreeCount = 9999;
+
         const possibleTeams = []; //teams that the ticket can join in
         for(const team of this.teams){
             if(this.TeamJoinPossible(team, joiningTicket)){
+                team._weight = team.freeCount;
                 possibleTeams.push(team);
             }
         }
 
+        //
         if(possibleTeams.length === 0) //no team available to join ?
             return null;
 
-        return possibleTeams[0];
+        
+        //will sort from lowest to highest
+        const sortedTeams = possibleTeams.sort(function(a, b){ return a._weight - b._weight; });
+        return sortedTeams[0];
         
     }
     TeamJoinPossible(team, joiningTicket){
@@ -356,6 +362,7 @@ class MMCollectionTeamed{
     JoinTicketToTeam(joiningTicket, team){
         team.tickets.push(joiningTicket);
         const teamNewSkill = TeamCalcSkill(team);
+        team.lastSkill = teamNewSkill;
 
         const newMin = Math.min(this.minSkill, teamNewSkill);
         const newMax = Math.max(this.maxSkill, teamNewSkill);
@@ -446,7 +453,7 @@ function MatchPullQueue(queue, queueSchema){
 
     //weight the properties
     for(const ticket of queue.tickets){
-        ticket.finalWeight = ticket.attrRank * queue.Weight_UserRank();
+        ticket.finalWeight = ticket.lastSkill * queue.Weight_Skill();
     }
     //sort the tickets
     //will sort from lowest to highest
