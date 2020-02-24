@@ -60,18 +60,12 @@ function ArrayLinearSample(array, alpha){
 }
     
 const EMatchTicketFailCodes = {
-    Timeout : 0,
-    QueueNotFound : 1,
-    QueueIsFull : 2,
-    QueueDropped : 3,
-    ServerFull : 4,
-    InvalidTicket : 5,
-};
-
-const EMatchTicketStatus = {
-    InProgress : 0,
-    Ready : 1,
-    Failed : 2,
+    Timeout : 'Timeout',
+    QueueNotFound : `QueueNotFound`,
+    QueueIsFull : `QueueIsFull`,
+    QueueDropped : `QueueDropped`,
+    ServerFull : `ServerFull`,
+    InvalidTicket : `InvalidTicket`,
 };
 
 /**
