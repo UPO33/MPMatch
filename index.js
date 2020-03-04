@@ -27,7 +27,7 @@ const gState = {
 
     GetQueuesBasicStatus,
 
-    Version : '0.1.3'
+    Version : '0.1.4'
 }
 
 function GenUniqueId(){
@@ -420,7 +420,8 @@ class MMCollectionTeamed{
             'minAge' : this.MinimumAge(),
             'minSkill' : this.minSkill,
             'maxSkill' : this.maxSkill,
-            'matchQueue' : this.queueSchema.name,
+            'matchQueueName' :  this.queueSchema.name,
+            'buildName' : this.queueSchema.buildName,
         };
 
         gState.OnMatchReady(result);

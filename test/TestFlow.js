@@ -32,6 +32,7 @@ const schema = {
         'minTeam' : 1,
         'duration' : 20,
         'mode' : 'single_join',
+        'buildName' : 'build_apex',
     },
     'apex-tutorial' : {
       'teamSize'  : 1,
@@ -39,6 +40,7 @@ const schema = {
       'minTeam' : 1,
       'duration' : 10,
       'mode' : 'single_join',
+      'buildName' : 'build_apex',
     },
     'apex-play' : {
         'teamSize' : 3,
@@ -46,6 +48,7 @@ const schema = {
         'maxTeam' : 20,
         'duration' : 10,
         'mode' : 'max_team',
+        'buildName' : 'build_apex',
     }
 };
 
@@ -55,12 +58,12 @@ function Test1(){
     //MPMatch.CreateTicket('apex-practice', { map : 'jungle'}, [ {skill:0, userId:1}, ]);
     //MPMatch.CreateTicket('apex-practice', { map : 'jungle'}, [ {skill:0, userId:2}, {skill:0, userId:3}]);
 
-    if(0){
+    if(1){
         MPMatch.CreateTicket('apex-tutorial', {}, [ { skill : 0, userId : 10 } ]);
         MPMatch.CreateTicket('apex-tutorial', {}, [ { skill : 0, userId : 20 } ]);
     }
 
-    if(1){
+    if(0){
         for(let i = 0; i < 20; i++){
             MPMatch.CreateTicket('apex-play', {}, [{ 'userId' : i, 'skill' : 0, }]);
         }
